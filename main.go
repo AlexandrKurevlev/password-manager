@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
 	"time"
 )
@@ -82,6 +83,23 @@ func (pm *PasswordManager) ListPasswords() []Password {
 	}
 
 	return passwords
+}
+
+func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
+	if length < 8 {
+		return "", fmt.Errorf("password is too weak")
+	}
+
+	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+!@#$%^&*"
+
+	key := make([]byte, length)
+	rand.Read(key)
+
+	for i := range key {
+		key[i] = charset[key[i]%byte(len(charset))]
+	}
+
+	return string(key), nil
 }
 
 func main() {
