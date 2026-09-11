@@ -76,7 +76,7 @@ func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 }
 
 func (pm *PasswordManager) ListPasswords() []Password {
-	passwords := make([]Password, len(pm.passwords))
+	passwords := make([]Password, 0, len(pm.passwords))
 	for _, pass := range pm.passwords {
 		passwords = append(passwords, pass)
 	}
