@@ -75,5 +75,14 @@ func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 	return Password{}, fmt.Errorf("password not found")
 }
 
+func (pm *PasswordManager) ListPasswords() []Password {
+	passwords := make([]Password, len(pm.passwords))
+	for _, pass := range pm.passwords {
+		passwords = append(passwords, pass)
+	}
+
+	return passwords
+}
+
 func main() {
 }
