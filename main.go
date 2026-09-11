@@ -93,7 +93,10 @@ func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+!@#$%^&*"
 
 	key := make([]byte, length)
-	rand.Read(key)
+	_, err := rand.Read(key)
+	if err != nil {
+		return "", err
+	}
 
 	for i := range key {
 		key[i] = charset[key[i]%byte(len(charset))]
