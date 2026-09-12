@@ -1,8 +1,12 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -103,6 +107,51 @@ func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	}
 
 	return string(key), nil
+}
+
+func (pm *PasswordManager) SaveToFile() error {
+	if !pm.isInitialized {
+		return fmt.Errorf("password manager not initialized")
+	}
+
+	data, err := json.Marshal(pm.passwords)
+	if err != nil {
+		return err
+	}
+
+	block, err := aes.NewCipher(pm.masterKey)
+	if err != nil {
+		return err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	_, err = rand.Read(nonce)
+	if err != nil {
+		return err
+	}
+
+	encryptedData := gcm.Seal(nil, nonce, data, nil)
+
+	file, err := os.Create(pm.filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.Write(nonce)
+	if err != nil {
+		return err
+	}
+	_, err = file.Write(encryptedData)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func main() {
