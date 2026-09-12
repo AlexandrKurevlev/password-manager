@@ -142,7 +142,7 @@ func (pm *PasswordManager) ListCategories() []string {
 		categories[pass.Category] = true
 	}
 
-	res := make([]string, len(categories))
+	res := make([]string, 0, len(categories))
 	for cat := range categories {
 		res = append(res, cat)
 	}
