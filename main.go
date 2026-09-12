@@ -139,7 +139,7 @@ func (pm *PasswordManager) GetPasswordsByCategory(category string) []Password {
 func (pm *PasswordManager) ListCategories() []string {
 	categories := make(map[string]bool)
 	for _, pass := range pm.passwords {
-		categories[pass.Name] = true
+		categories[pass.Category] = true
 	}
 
 	res := make([]string, len(categories))
