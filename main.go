@@ -101,6 +101,21 @@ func (pm *PasswordManager) GetPasswordsByCategory(category string) []Password {
 	return passwords
 }
 
+func (pm *PasswordManager) FindDuplicatePasswords() map[string][]string {
+	duplicates := make(map[string][]string)
+	for _, pass := range pm.passwords {
+		duplicates[pass.Value] = append(duplicates[pass.Value], pass.Name)
+	}
+
+	for key := range duplicates {
+		if len(duplicates[key]) == 1 {
+			delete(duplicates, key)
+		}
+	}
+
+	return duplicates
+}
+
 func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	if length < 8 {
 		return "", fmt.Errorf("password is too weak")
