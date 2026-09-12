@@ -91,6 +91,16 @@ func (pm *PasswordManager) ListPasswords() []Password {
 	return passwords
 }
 
+func (pm *PasswordManager) GetPasswordsByCategory(category string) []Password {
+	var passwords []Password
+	for _, pass := range pm.passwords {
+		if pass.Category == category {
+			passwords = append(passwords, pass)
+		}
+	}
+	return passwords
+}
+
 func (pm *PasswordManager) GeneratePassword(length int) (string, error) {
 	if length < 8 {
 		return "", fmt.Errorf("password is too weak")
