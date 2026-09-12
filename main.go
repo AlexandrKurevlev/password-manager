@@ -70,6 +70,27 @@ func (pm *PasswordManager) SavePassword(name, value, category string) error {
 	return nil
 }
 
+func (pm *PasswordManager) UpdatePassword(name, newValue string) error {
+	if !pm.isInitialized {
+		return fmt.Errorf("password manager is not initialized")
+	}
+
+	if pass, present := pm.passwords[name]; present {
+		err := pm.CheckPasswordStrength(newValue)
+		if err != nil {
+			return err
+		}
+
+		pass.Value = newValue
+		pass.LastModified = time.Now()
+		pm.passwords[name] = pass
+	} else {
+		return fmt.Errorf("password not found")
+	}
+
+	return nil
+}
+
 func (pm *PasswordManager) GetPassword(name string) (Password, error) {
 	if !pm.isInitialized {
 		return Password{}, fmt.Errorf("password manager not initialized")
