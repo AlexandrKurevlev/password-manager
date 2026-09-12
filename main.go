@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -195,6 +196,38 @@ func (pm *PasswordManager) LoadFromFile() error {
 	err = json.Unmarshal(data, &pm.passwords)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (pm *PasswordManager) CheckPasswordStrength(password string) error {
+	if len(password) < 8 {
+		return fmt.Errorf("password is too weak")
+	}
+
+	symbols := "!@#$%^&*"
+	hasLowerCase, hasUpperCase, hasDigit, hasSymbol := false, false, false, false
+	for _, r := range password {
+		if r >= 'a' && r <= 'z' {
+			hasLowerCase = true
+			continue
+		}
+		if r >= 'A' && r <= 'Z' {
+			hasUpperCase = true
+			continue
+		}
+		if r >= '0' && r <= '9' {
+			hasDigit = true
+			continue
+		}
+		if strings.ContainsRune(symbols, r) {
+			hasSymbol = true
+		}
+	}
+
+	if !(hasLowerCase && hasUpperCase && hasDigit && hasSymbol) {
+		return fmt.Errorf("password is too weak")
 	}
 
 	return nil
