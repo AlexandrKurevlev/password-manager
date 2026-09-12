@@ -162,7 +162,7 @@ func (pm *PasswordManager) LoadFromFile() error {
 
 	file, err := os.Open(pm.filePath)
 	if err != nil {
-		return nil
+		return err
 	}
 	defer file.Close()
 
