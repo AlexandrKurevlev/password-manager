@@ -136,6 +136,19 @@ func (pm *PasswordManager) GetPasswordsByCategory(category string) []Password {
 	return passwords
 }
 
+func (pm *PasswordManager) ListCategories() []string {
+	categories := make(map[string]bool)
+	for _, pass := range pm.passwords {
+		categories[pass.Name] = true
+	}
+
+	res := make([]string, len(categories))
+	for cat := range categories {
+		res = append(res, cat)
+	}
+	return res
+}
+
 func (pm *PasswordManager) FindDuplicatePasswords() map[string][]string {
 	duplicates := make(map[string][]string)
 	for _, pass := range pm.passwords {
