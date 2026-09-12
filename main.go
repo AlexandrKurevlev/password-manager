@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"time"
 )
@@ -151,6 +152,51 @@ func (pm *PasswordManager) SaveToFile() error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (pm *PasswordManager) LoadFromFile() error {
+	if !pm.isInitialized {
+		return fmt.Errorf("password manager not initialized")
+	}
+
+	file, err := os.Open(pm.filePath)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+
+	block, err := aes.NewCipher(pm.masterKey)
+	if err != nil {
+		return err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	_, err = io.ReadFull(file, nonce)
+	if err != nil {
+		return err
+	}
+
+	encryptedData, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	data, err := gcm.Open(nil, nonce, encryptedData, nil)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(data, &pm.passwords)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
