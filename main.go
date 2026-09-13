@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -330,6 +331,34 @@ func (pm *PasswordManager) CheckPasswordStrength(password string) error {
 	}
 
 	return nil
+}
+
+const (
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorReset  = "\033[0m"
+)
+
+func clearScreen() {
+	fmt.Println("\033[H\033[2J")
+}
+
+func showSuccess(message string) {
+	fmt.Println(colorGreen + message + colorReset)
+}
+
+func showError(message string) {
+	fmt.Println(colorRed + message + colorReset)
+}
+
+func showInfo(message string) {
+	fmt.Println(colorYellow + message + colorReset)
+}
+
+func waitForEnter() {
+	reader := bufio.NewReader(os.Stdin)
+	_, _ = reader.ReadString('\n')
 }
 
 func main() {
