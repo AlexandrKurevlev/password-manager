@@ -149,6 +149,32 @@ func (pm *PasswordManager) ListCategories() []string {
 	return res
 }
 
+func (pm *PasswordManager) GetPasswordStats() map[string]interface{} {
+	res := make(map[string]interface{})
+	res["total"] = len(pm.passwords)
+
+	if len(pm.passwords) == 0 {
+		return res
+	}
+
+	categories := make(map[string]int)
+	var newest time.Time
+	var oldest = time.Now()
+	for _, pass := range pm.passwords {
+		if pass.CreatedAt.After(newest) {
+			newest = pass.CreatedAt
+		}
+		if pass.CreatedAt.Before(oldest) {
+			oldest = pass.CreatedAt
+		}
+		categories[pass.Category] += 1
+	}
+	res["categories"] = categories
+	res["oldest"] = oldest
+	res["newest"] = newest
+	return res
+}
+
 func (pm *PasswordManager) FindDuplicatePasswords() map[string][]string {
 	duplicates := make(map[string][]string)
 	for _, pass := range pm.passwords {
