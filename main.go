@@ -368,7 +368,7 @@ func ReadUserInput(prompt string) (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	input, err := reader.ReadString('\n')
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return strings.TrimSpace(input), nil
 }
