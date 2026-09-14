@@ -11,6 +11,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
 )
 
 type Password struct {
@@ -359,6 +361,22 @@ func showInfo(message string) {
 func waitForEnter() {
 	reader := bufio.NewReader(os.Stdin)
 	_, _ = reader.ReadString('\n')
+}
+
+func ReadUserInput(prompt string) string {
+	fmt.Print(prompt)
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	return strings.TrimSpace(input)
+}
+
+func readPassword() (string, error) {
+	pass, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return "", err
+	}
+	fmt.Println()
+	return string(pass), nil
 }
 
 func main() {
