@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"text/tabwriter"
 	"time"
 
 	"golang.org/x/term"
@@ -380,6 +381,44 @@ func readPassword() (string, error) {
 	}
 	fmt.Println()
 	return string(pass), nil
+}
+
+func ShowMainMenu() {
+	clearScreen()
+	fmt.Println("==========================================")
+	fmt.Println("           Password Manager")
+	fmt.Println("==========================================")
+	fmt.Println("1. Generate new password")
+	fmt.Println("2. Add new password")
+	fmt.Println("3. Get password")
+	fmt.Println("4. List all passwords")
+	fmt.Println("5. Update password")
+	fmt.Println("6. Delete password")
+	fmt.Println("7. List categories")
+	fmt.Println("8. Show password statistics")
+	fmt.Println("9. Find duplicate passwords")
+	fmt.Println("0. Exit")
+	fmt.Println("==========================================")
+}
+
+func PrintPasswordList(passwords []Password) {
+	fmt.Println("=== Password list ===")
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(writer, "Name\tCategory\tCreated\tLast Modified")
+	for _, pass := range passwords {
+		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n", pass.Name, pass.Category, pass.CreatedAt.Format("2006-01-02"), pass.LastModified.Format("2006-01-02"))
+	}
+
+	writer.Flush()
+}
+
+func ShowPasswordDetails(password Password) {
+	fmt.Println("=== Password details ===")
+	fmt.Println("Service:", password.Name)
+	fmt.Println("Category:", password.Category)
+	fmt.Println("Password:", password.Value)
+	fmt.Println("Created:", password.CreatedAt.Format("2006-01-02 03:04:05"))
+	fmt.Println("Last Modified:", password.LastModified.Format("2006-01-02 03:04:05"))
 }
 
 func main() {
