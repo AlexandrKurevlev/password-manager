@@ -363,11 +363,14 @@ func waitForEnter() {
 	_, _ = reader.ReadString('\n')
 }
 
-func ReadUserInput(prompt string) string {
+func ReadUserInput(prompt string) (string, error) {
 	fmt.Print(prompt)
 	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	return strings.TrimSpace(input)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return "", nil
+	}
+	return strings.TrimSpace(input), nil
 }
 
 func readPassword() (string, error) {
