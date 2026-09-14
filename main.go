@@ -10,7 +10,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"golang.org/x/term"
@@ -403,13 +402,11 @@ func ShowMainMenu() {
 
 func PrintPasswordList(passwords []Password) {
 	fmt.Println("=== Password list ===")
-	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(writer, "Name\tCategory\tCreated\tLast Modified")
+	fmt.Printf("%-20s %-20s %-20s %-20s\n", "Name", "Category", "Created", "Last Modified")
 	for _, pass := range passwords {
-		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n", pass.Name, pass.Category, pass.CreatedAt.Format("2006-01-02"), pass.LastModified.Format("2006-01-02"))
+		fmt.Printf("%-20s %-20s %-20s %-20s\n", pass.Name, pass.Category, pass.CreatedAt.Format("2006-01-02"), pass.LastModified.Format("2006-01-02"))
 	}
 
-	writer.Flush()
 }
 
 func ShowPasswordDetails(password Password) {
