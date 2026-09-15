@@ -522,6 +522,8 @@ func HandlePasswordUpdate(pm *PasswordManager) {
 		return
 	}
 	showSuccess("Password saved successfully")
+	fmt.Println("Press Enter to continue...")
+	waitForEnter()
 }
 
 func HandlePasswordSearch(pm *PasswordManager) {
