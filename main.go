@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -564,4 +565,104 @@ func HandleExitAndSave(pm *PasswordManager) error {
 }
 
 func main() {
+	pm := NewPasswordManager("passwords.txt")
+	fmt.Println("=== Password Manager Initialization ===")
+	fmt.Print("Enter master password: ")
+	pass, err := readPassword()
+	if err != nil {
+		showError(err.Error())
+		return
+	}
+
+	err = pm.SetMasterPassword(pass)
+	if err != nil {
+		showError(err.Error())
+		return
+	}
+
+	showSuccess("Password manager initialized successfully")
+
+	err = pm.LoadFromFile()
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		showError(err.Error())
+		return
+	}
+
+	fmt.Println("Press Enter to continue...")
+	waitForEnter()
+
+	for {
+		ShowMainMenu()
+		choice, err := ReadUserInput("Enter your choice: ")
+		if err != nil {
+			showError(err.Error())
+			return
+		}
+		choice = strings.TrimSpace(choice)
+		command, err := strconv.Atoi(choice)
+		if err != nil {
+			showError(err.Error())
+			return
+		}
+
+		switch command {
+		case 1:
+			genPass, err := pm.GeneratePassword(14)
+			if err != nil {
+				showError(err.Error())
+				return
+			}
+			showSuccess("Generated password: " + genPass)
+		case 2:
+			HandlePasswordAdd(pm)
+		case 3:
+			HandlePasswordSearch(pm)
+		case 4:
+			PrintPasswordList(pm.ListPasswords())
+		case 5:
+			HandlePasswordUpdate(pm)
+		case 6:
+			serviceName, err := ReadUserInput("Enter service name: ")
+			if err != nil {
+				showError(err.Error())
+				return
+			}
+			err = pm.DeletePassword(serviceName)
+			if err != nil {
+				showError(err.Error())
+				return
+			}
+			showSuccess("Password deleted successfully")
+		case 7:
+			for _, cat := range pm.ListCategories() {
+				fmt.Println(cat)
+			}
+		case 8:
+			stats := pm.GetPasswordStats()
+			fmt.Println("Total:", stats["total"])
+			if stats["total"].(int) != 0 {
+				fmt.Println("Oldest password:", stats["oldest"])
+				fmt.Println("Newest password:", stats["newest"])
+				fmt.Println("Stats by categories")
+				for cat, catCount := range stats["categories"].(map[string]int) {
+					fmt.Println(cat, "=>", catCount)
+				}
+			}
+		case 9:
+			duplicates := pm.FindDuplicatePasswords()
+			for cat, _ := range duplicates {
+				fmt.Println("Cat:")
+				for _, p := range duplicates[cat] {
+					fmt.Println("\t", p)
+				}
+			}
+		case 0:
+			err = HandleExitAndSave(pm)
+			if err != nil {
+				showError(err.Error())
+				return
+			}
+			return
+		}
+	}
 }
