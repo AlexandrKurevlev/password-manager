@@ -527,6 +527,20 @@ func HandlePasswordUpdate(pm *PasswordManager) {
 	waitForEnter()
 }
 
+func HandlePasswordDelete(pm *PasswordManager) {
+	serviceName, err := ReadUserInput("Enter service name: ")
+	if err != nil {
+		showError(err.Error())
+		return
+	}
+	err = pm.DeletePassword(serviceName)
+	if err != nil {
+		showError(err.Error())
+		return
+	}
+	showSuccess("Password deleted successfully")
+}
+
 func HandlePasswordSearch(pm *PasswordManager) {
 	clearScreen()
 	fmt.Println("=== Search Password ===")
@@ -547,6 +561,35 @@ func HandlePasswordSearch(pm *PasswordManager) {
 	ShowPasswordDetails(pass)
 	fmt.Println("Press Enter to continue...")
 	waitForEnter()
+}
+
+func HandleListCategories(pm *PasswordManager) {
+	for _, cat := range pm.ListCategories() {
+		fmt.Println(cat)
+	}
+}
+
+func HandlePasswordStatistics(pm *PasswordManager) {
+	stats := pm.GetPasswordStats()
+	fmt.Println("Total:", stats["total"])
+	if stats["total"].(int) != 0 {
+		fmt.Println("Oldest password:", stats["oldest"])
+		fmt.Println("Newest password:", stats["newest"])
+		fmt.Println("Stats by categories")
+		for cat, catCount := range stats["categories"].(map[string]int) {
+			fmt.Println(cat, "=>", catCount)
+		}
+	}
+}
+
+func HandlePasswordDuplicates(pm *PasswordManager) {
+	duplicates := pm.FindDuplicatePasswords()
+	for cat, _ := range duplicates {
+		fmt.Println("Cat:")
+		for _, p := range duplicates[cat] {
+			fmt.Println("\t", p)
+		}
+	}
 }
 
 func HandleExitAndSave(pm *PasswordManager) error {
@@ -607,12 +650,7 @@ func main() {
 
 		switch command {
 		case 1:
-			genPass, err := pm.GeneratePassword(14)
-			if err != nil {
-				showError(err.Error())
-				return
-			}
-			showSuccess("Generated password: " + genPass)
+			HandlePasswordGeneration(pm)
 		case 2:
 			HandlePasswordAdd(pm)
 		case 3:
@@ -622,40 +660,13 @@ func main() {
 		case 5:
 			HandlePasswordUpdate(pm)
 		case 6:
-			serviceName, err := ReadUserInput("Enter service name: ")
-			if err != nil {
-				showError(err.Error())
-				return
-			}
-			err = pm.DeletePassword(serviceName)
-			if err != nil {
-				showError(err.Error())
-				return
-			}
-			showSuccess("Password deleted successfully")
+			HandlePasswordDelete(pm)
 		case 7:
-			for _, cat := range pm.ListCategories() {
-				fmt.Println(cat)
-			}
+			HandleListCategories(pm)
 		case 8:
-			stats := pm.GetPasswordStats()
-			fmt.Println("Total:", stats["total"])
-			if stats["total"].(int) != 0 {
-				fmt.Println("Oldest password:", stats["oldest"])
-				fmt.Println("Newest password:", stats["newest"])
-				fmt.Println("Stats by categories")
-				for cat, catCount := range stats["categories"].(map[string]int) {
-					fmt.Println(cat, "=>", catCount)
-				}
-			}
+			HandlePasswordStatistics(pm)
 		case 9:
-			duplicates := pm.FindDuplicatePasswords()
-			for cat, _ := range duplicates {
-				fmt.Println("Cat:")
-				for _, p := range duplicates[cat] {
-					fmt.Println("\t", p)
-				}
-			}
+			HandlePasswordDuplicates(pm)
 		case 0:
 			err = HandleExitAndSave(pm)
 			if err != nil {
