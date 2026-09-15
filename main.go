@@ -541,6 +541,8 @@ func HandlePasswordSearch(pm *PasswordManager) {
 		return
 	}
 
+	showSuccess("Password found")
+
 	ShowPasswordDetails(pass)
 	fmt.Println("Press Enter to continue...")
 	waitForEnter()
